@@ -1,0 +1,9 @@
+---
+- name: Install HA on control nodes
+  hosts: kube_control_plane
+  vars:
+    ansible_python_interpreter: /usr/bin/python3   
+    ha_cluster_virtual_ip: "10.0.1.100"
+    ha_cluster_virtual_port: "7443" 
+  roles:
+    - { role: ./roles/ha }
