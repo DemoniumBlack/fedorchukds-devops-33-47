@@ -21,10 +21,14 @@
 
 С помощью Terraform разверну инфраструктуру - три Master ноды и четыре Worker ноды в Yandex.Cloud.
 
-При разворачивании инфраструктуры на каждую ноду будут установлены дополнительные пакеты приложений, которые могут быть полезны в дальнейшем. Список пакетов указывается в файле `[cloud-init.yml](https://)`.
-Также с помощью шаблонов, указанных в файле `[ansible.tf](https://)` автоматически формируются inventory файлы для дальнейшего разворачивания Kubernetes кластера в режиме High Availability.
+При разворачивании инфраструктуры на каждую ноду будут установлены дополнительные пакеты приложений, которые могут быть полезны в дальнейшем. Список пакетов указывается в файле `[cloud-init.yml](https://github.com/DemoniumBlack/fedorchukds-devops-33-47/blob/main/SRC/terraform/cloud-init.yml)`.
+Также с помощью шаблонов, указанных в файле `[ansible.tf](https://github.com/DemoniumBlack/fedorchukds-devops-33-47/blob/main/SRC/terraform/ansible.tf)` автоматически формируются inventory файлы для дальнейшего разворачивания Kubernetes кластера в режиме High Availability.
 
 Файлы шаблонов доступны по ссылкам:
+
+https://github.com/DemoniumBlack/fedorchukds-devops-33-47/blob/main/SRC/terraform/hosts.tftpl
+
+https://github.com/DemoniumBlack/fedorchukds-devops-33-47/blob/main/SRC/terraform/ha.tftpl
 
 Запущу процесс разворачивания виртуальных машин с помощью Terraform. Буду использовать следующие команды:
 
@@ -100,7 +104,7 @@ all:
       hosts: {}
 ```
 
-Следующим шагом командой `ansible-playbook -i inventory/mycluster/hosts.yaml -u ubuntu --become --become-user=root --private-key=~/.ssh/id_ed25519 -e 'ansible_ssh_common_args="-o StrictHostKeyChecking=no"' cluster.yml --flush-cache` запущу разворачивание Kubernetes кластера из репозитория Kubespray.
+Следующим шагом командой ```ansible-playbook -i inventory/mycluster/hosts.yaml -u ubuntu --become --become-user=root --private-key=~/.ssh/id_ed25519 -e 'ansible_ssh_common_args="-o StrictHostKeyChecking=no"' cluster.yml --flush-cache``` запущу разворачивание Kubernetes кластера из репозитория Kubespray.
 
 Разворачивание Kubernetes кластера занимает некоторое время и завершается успешно со следующим результатом:
 
@@ -114,9 +118,9 @@ Kubernetes кластер работает, все ноды в состояни�
 
 Далее сделаю кластер высокодоступным. Для этого буду использовать настроенный Ansible Playbook, который установит на Master ноды Keepalived и HAproxy, создаст их конфигурационные файлы и автоматически установит нужные для работы параметры.
 
-Командой `ansible-playbook -i hosts.yaml -u ubuntu --become --become-user=root --private-key=~/.ssh/id_ed25519 -e 'ansible_ssh_common_args="-o StrictHostKeyChecking=no"' install-ha.yaml --flush-cache` запускаю выполнение Playbook, который установит и настроит Keepalived и HAproxy.
+Командой ```ansible-playbook -i hosts.yaml -u ubuntu --become --become-user=root --private-key=~/.ssh/id_ed25519 -e 'ansible_ssh_common_args="-o StrictHostKeyChecking=no"' install-ha.yaml --flush-cache``` запускаю выполнение Playbook, который установит и настроит Keepalived и HAproxy.
 
-Ссылка на Playbook: 
+Ссылка на Playbook: https://github.com/DemoniumBlack/fedorchukds-devops-33-47/blob/main/SRC/HA/install-ha.yaml
 
 Проверю работу Keepalived. Одна Master нода относительно Keepalived имеет статус MASTER, две остальные Master ноды имеют статус BACKUP. На MASTER ноде находится еще один ip адрес, который принадлежит Keepalived:
 
